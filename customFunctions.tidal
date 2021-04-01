@@ -1,0 +1,23 @@
+
+-- This is a family of functions that allows patterns to fall uniformly out of time, like a ball bouncing
+
+-- These are helper functions
+strech :: Pattern Time -> Pattern a -> Pattern a -> Pattern a
+strech time a b = overlay a (time ~> b)
+
+strech' :: [Pattern a] -> Pattern Time -> Pattern a
+strech' (a:as) time = strech time a (strech' as (time))
+strech' [] time = strech time silence silence
+
+-- These are the proper functions
+ballbounce' :: [Pattern a] -> Time -> Time -> Pattern a
+ballbounce' a time striation = strech' a (fromList [0,0 + striation..time])
+
+ballbounce :: [Pattern a] -> Time -> Time -> Pattern a
+ballbounce a time striation = strech' a (rev (fromList [0,0 + striation..time]))
+
+balancebounce :: [Pattern a] -> Time -> Time -> Pattern a
+balancebounce a time striation = strech' a (fromList ([0,0 + striation..time] ++ (reverse [0,0 + striation..time])) )
+
+-- A useful helper function for cps, so I don't have to worry about division
+cpsFix x = cps (x/60/4)
